@@ -1,0 +1,14 @@
+.env
+.idea/
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Downloaded image binaries — reproducible via scripts/fetch_images.py,
+# not committed to keep repo size small (manifest.json IS tracked).
+data/images/**/*.jpg
+data/images/**/*.jpeg
+data/images/**/*.png
