@@ -1,0 +1,37 @@
+run: docker compose up --build
+seed: |
+  docker compose exec ollama ollama pull llava
+  docker compose exec ollama ollama pull nomic-embed-text
+  python scripts/fetch_images.py
+  docker compose exec api python seed_images.py
+  curl -X POST http://localhost:8000/batch/tag-images   # then poll /batch/jobs/:id
+  python scripts/seed_posts.py
+  curl -X POST http://localhost:8000/batch/embed        # then poll /batch/jobs/:id
+test: python scripts/run_eval.py
+base_url: http://localhost:8000
+
+endpoints:
+  - POST /batch/tag-images
+      description: triggers the background vision-tagging job
+  - POST /batch/embed
+      description: triggers the background embedding job (images + posts)
+  - GET /batch/jobs/{job_id}
+      description: poll a batch job's progress/status
+  - GET /images
+      description: list all images with their tags and confidence
+  - GET /costs
+      description: per-call-type cost log summary
+  - POST /posts
+      description: create a blog post (title, content)
+  - GET /posts
+      description: list all posts
+  - GET /posts/{post_id}/images
+      description: ranked + guard-evaluated image suggestion for a post
+  - POST /posts/{post_id}/images/force-check
+      description: force the guard to evaluate a specific image against a post (query param image_filename)
+  - GET /suggestions
+      description: inspect every suggestion made, with its guard verdict and explanation
+  - POST /suggestions/{suggestion_id}/review
+      description: human approve/reject a suggestion
+  - GET /health
+      description: liveness check

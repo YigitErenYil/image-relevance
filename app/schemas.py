@@ -77,3 +77,26 @@ class SuggestionResponse(BaseModel):
     similarity_score: Optional[float]
     guard_verdict: str
     explanation: str
+
+
+class SuggestionReviewRequest(BaseModel):
+    review_status: str  # "approved" | "rejected"
+
+    @field_validator("review_status")
+    @classmethod
+    def valid_status(cls, v: str) -> str:
+        if v not in ("approved", "rejected"):
+            raise ValueError('review_status must be "approved" or "rejected"')
+        return v
+
+
+class SuggestionDetail(BaseModel):
+    id: uuid.UUID
+    post_id: uuid.UUID
+    post_title: str
+    image_id: Optional[uuid.UUID]
+    image_filename: Optional[str] = None
+    similarity_score: Optional[float]
+    guard_verdict: str
+    explanation: str
+    review_status: str
