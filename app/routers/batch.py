@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import ProcessingJob
 from app.schemas import JobStatusResponse, TriggerJobResponse
-from app.services.batch import run_tagging_job
+from app.services.batch import run_tagging_job, run_embedding_job
 
 router = APIRouter()
 
@@ -22,6 +22,18 @@ def trigger_tagging(background_tasks: BackgroundTasks, db: Session = Depends(get
     background_tasks.add_task(run_tagging_job, job.id)
 
     return TriggerJobResponse(job_id=job.id, message="Tagging job started")
+
+
+@router.post("/batch/embed", response_model=TriggerJobResponse, status_code=202)
+def trigger_embedding(background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    job = ProcessingJob(job_type="embedding", status="pending")
+    db.add(job)
+    db.commit()
+    db.refresh(job)
+
+    background_tasks.add_task(run_embedding_job, job.id)
+
+    return TriggerJobResponse(job_id=job.id, message="Embedding job started")
 
 
 @router.get("/batch/jobs/{job_id}", response_model=JobStatusResponse)

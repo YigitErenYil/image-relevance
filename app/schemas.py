@@ -50,3 +50,30 @@ class JobStatusResponse(BaseModel):
 class TriggerJobResponse(BaseModel):
     job_id: uuid.UUID
     message: str
+
+
+class PostCreate(BaseModel):
+    title: str
+    content: str
+
+    @field_validator("title", "content")
+    @classmethod
+    def not_blank(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("must not be blank")
+        return v
+
+
+class PostResponse(BaseModel):
+    id: uuid.UUID
+    title: str
+    content: str
+
+
+class SuggestionResponse(BaseModel):
+    post_id: uuid.UUID
+    image_id: Optional[uuid.UUID]
+    image_filename: Optional[str] = None
+    similarity_score: Optional[float]
+    guard_verdict: str
+    explanation: str
