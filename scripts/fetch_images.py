@@ -64,7 +64,7 @@ def fetch_category(category: str, query: str, count: int):
         filepath.write_bytes(img_resp.content)
 
         entries.append({
-            "filename": str(filepath.relative_to(OUT_DIR.parent.parent)),
+            "filename": filepath.relative_to(OUT_DIR.parent.parent).as_posix(),
             "source_category": category,
             "unsplash_id": photo["id"],
             "unsplash_author": photo["user"]["name"],
